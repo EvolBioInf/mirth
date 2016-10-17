@@ -1,0 +1,2 @@
+setlocal expandtab shiftwidth=2 softtabstop=2
+let g:syntastic_cpp_gcc_args=system("make show_cxxflags")

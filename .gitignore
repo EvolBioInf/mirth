@@ -1,0 +1,11 @@
+*.o
+build/
+sdsl*/
+libdivsufsort/
+gsl*/
+tests/scratchpad*
+tags
+randomSeed.dat
+gmon.out
+vgcore.*
+perf.*
