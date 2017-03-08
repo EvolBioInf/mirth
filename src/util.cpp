@@ -13,10 +13,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-//for mmap stuff
-#include <sys/mman.h>
-#include <sys/stat.h>
-
 #include "util.h"
 #include "args.h"
 using namespace std;
@@ -141,31 +137,3 @@ bool with_file_in(char const *file, function<bool(istream&)> lambda, ios_base::o
 bool with_file_out(char const *file, function<bool(ostream&)> lambda, ios_base::openmode mode) {
   return with_file(file, lambda, ios_base::out|mode, &cout);
 }
-
-size_t getFilesize(const char* filename) {
-    struct stat st;
-    stat(filename, &st);
-    return st.st_size;
-}
-bool with_mmap(char const *file, function<bool(MMapReader&)> lambda) {
-  int fd = open_or_fail(file, O_RDONLY);
-
-  MMapReader r;
-  if (file)
-    r.sz=getFilesize(file);
-  char* data = reinterpret_cast<char*>(mmap(NULL, r.sz, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0));
-  if (data == MAP_FAILED) {
-    cerr << "ERROR: mmap failed! Can not continue processing file! Aborting!" << endl;
-    exit(EXIT_FAILURE);
-  }
-  r.dat = data;
-  bool ret = lambda(r);
-  int rc = munmap(data, r.sz);
-  if (rc != 0) {
-    cerr << "ERROR: Could not unmap memory! Aborting!" << endl;
-    exit(EXIT_FAILURE);
-  }
-  close(fd);
-  return ret;
-}
-
